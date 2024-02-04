@@ -2,7 +2,7 @@
 
 import Task from "./Task";
 
-const TaskList = ({ tasks, onEdit, onToggle }) => {
+const TaskList = ({ tasks, onEdit, onDelete, onToggle }) => {
   return (
     <ul>
       {tasks.map((task) => (
@@ -10,7 +10,8 @@ const TaskList = ({ tasks, onEdit, onToggle }) => {
           key={task.id}
           task={task}
           onEdit={() => onEdit(task.id, task.title, task.description)} // Pass task details to onEdit
-          onToggle={() => onToggle(task.id)}
+          onDelete={() => onDelete(task.id)}
+          onToggle={() => onToggle(task.id, !task.completed)}
         />
       ))}
     </ul>

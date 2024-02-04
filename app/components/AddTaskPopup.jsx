@@ -2,7 +2,8 @@
 
 import { useState, useEffect } from "react";
 
-const AddTaskPopup = ({ onSubmit, onCancel, editTaskId, tasks }) => {
+const AddTaskPopup = ({ editTaskId, tasks, onSubmit, onCancel }) => {
+  const [initialTask, setInitialTask] = useState({});
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
   const [isVisible, setIsVisible] = useState(true);
@@ -11,6 +12,7 @@ const AddTaskPopup = ({ onSubmit, onCancel, editTaskId, tasks }) => {
     if (editTaskId !== null) {
       const taskToEdit = tasks.find((task) => task.id === editTaskId);
       if (taskToEdit) {
+        setInitialTask(taskToEdit);
         setTitle(taskToEdit.title);
         setDescription(taskToEdit.description);
       }
@@ -85,6 +87,11 @@ const AddTaskPopup = ({ onSubmit, onCancel, editTaskId, tasks }) => {
             <button
               type="submit"
               className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600 focus:outline-none focus:ring focus:border-blue-300"
+              disabled={
+                editTaskId &&
+                initialTask.title === title &&
+                initialTask.description === description
+              }
             >
               {editTaskId ? "Update Task" : "Add Task"}
             </button>

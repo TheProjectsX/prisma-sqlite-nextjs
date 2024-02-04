@@ -3,72 +3,94 @@ import { useState } from "react";
 import TaskList from "@/app/components/TaskList";
 import AddTaskPopup from "@/app/components/AddTaskPopup";
 
-const TaskTracker = () => {
-  const [tasks, setTasks] = useState([
-    {
-      id: 1,
-      title: "Task 1",
-      description: "Description for Task 1",
-      status: "incomplete",
-      time: "12:00 PM",
-    },
-    {
-      id: 2,
-      title: "Task 2",
-      description: "Description for Task 2",
-      status: "complete",
-      time: "3:30 PM",
-    },
-    // Add more tasks as needed
-  ]);
+const TaskTracker = ({ taskData }) => {
+  const [tasks, setTasks] = useState(taskData);
 
   const [showAddTaskPopup, setShowAddTaskPopup] = useState(false);
   const [editTaskId, setEditTaskId] = useState(null);
 
-  const handleAddTask = (newTask) => {
+  const handleAddTask = async (newTask) => {
+    // If Edit Task Id is not null, it means, Edit It!
     if (editTaskId !== null) {
-      setTasks((prevTasks) =>
-        prevTasks.map((task) =>
-          task.id === editTaskId
-            ? { ...task, ...newTask, status: task.status }
-            : task
-        )
-      );
+      const res = await fetch("/api/update-task", {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          id: editTaskId,
+          ...newTask,
+        }),
+      });
+
+      const updatedTask = await res.json();
+
+      if (updatedTask.success) {
+        setTasks((prevTasks) =>
+          prevTasks.map((task) =>
+            task.id === editTaskId ? updatedTask["data"] : task
+          )
+        );
+      }
       setEditTaskId(null);
     } else {
-      setTasks((prevTasks) => [
-        ...prevTasks,
-        {
-          id: prevTasks.length + 1,
-          ...newTask,
-          status: "incomplete",
-          time: "4:45 PM",
-        }, // Change time logic here
-      ]);
+      const res = await fetch("/api/create-task", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(newTask),
+      });
+      const addedTask = await res.json();
+      if (addedTask.success) {
+        setTasks((prevTasks) => [...prevTasks, addedTask["data"]]);
+      }
     }
     setShowAddTaskPopup(false);
   };
 
   const handleEditTask = (taskId, title, description) => {
-    setShowAddTaskPopup(true);
     setEditTaskId(taskId);
+    setShowAddTaskPopup(true);
   };
 
-  const handleDeleteTask = (taskId) => {
-    setTasks((prevTasks) => prevTasks.filter((task) => task.id !== taskId));
+  const handleDeleteTask = async (taskId) => {
+    const res = await fetch(`/api/delete-task?id=${taskId}`, {
+      method: "DELETE",
+    });
+
+    const deletedTask = await res.json();
+    if (deletedTask.success) {
+      setTasks((prevTasks) => prevTasks.filter((task) => task.id !== taskId));
+    }
   };
 
-  const handleToggleTask = (taskId) => {
-    setTasks((prevTasks) =>
-      prevTasks.map((task) =>
-        task.id === taskId
-          ? {
-              ...task,
-              status: task.status === "complete" ? "incomplete" : "complete",
-            }
-          : task
-      )
-    );
+  const handleToggleTask = async (taskId, value) => {
+    const res = await fetch(`/api/update-task`, {
+      method: "PUT",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        id: taskId,
+        completed: value,
+      }),
+    });
+    const updatedTask = await res.json();
+
+    if (updatedTask.success) {
+      setTasks((prevTasks) =>
+        prevTasks.map((task) =>
+          task.id === taskId
+            ? {
+                ...task,
+                completed: value,
+                updatedAt: updatedTask["data"].updatedAt,
+              }
+            : task
+        )
+      );
+    }
   };
 
   return (

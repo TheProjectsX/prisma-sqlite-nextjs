@@ -14,6 +14,7 @@ model UserTask {
   id          String   @id @default(cuid())
   title       String
   description String
+  completed   Boolean
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
 }

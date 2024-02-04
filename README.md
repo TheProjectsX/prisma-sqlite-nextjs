@@ -64,3 +64,7 @@ yarn prisma migrate dev --name init
 ```
 yarn prisma studio
 ```
+
+### Conversation with ChatGPT
+
+If you are interested in Checking the Conversation with the ChatGPT, you Can [Check Here](https://chat.openai.com/share/c1b551b6-3002-410d-b865-dc2a2468d20d)
