@@ -1,4 +1,5 @@
 # Task Tracker
+Isn't created as a Serious Project. Just created to Clear the concepts of the Used Technologies...
 
 ### Technologies:
 
